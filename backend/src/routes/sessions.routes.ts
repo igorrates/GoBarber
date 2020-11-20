@@ -1,9 +1,9 @@
-import { Router } from "express";
-import AuthenticateUserService from "../services/AuthenticateUserService";
+import { Router } from 'express';
+import AuthenticateUserService from '../services/AuthenticateUserService';
 
 const sessionsRouter = Router();
 
-sessionsRouter.post("/", async (request, response) => {
+sessionsRouter.post('/', async (request, response) => {
   const { email, password } = request.body;
 
   const authenticateUser = new AuthenticateUserService();
@@ -19,8 +19,8 @@ sessionsRouter.post("/", async (request, response) => {
     email: user.email,
     avatar: user.avatar,
     created_at: user.created_at,
-    updated_at: user.updated_at
-  }
+    updated_at: user.updated_at,
+  };
 
   return response.json({ userWithoutPass, token });
 });
