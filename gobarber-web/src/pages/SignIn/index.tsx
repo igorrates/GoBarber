@@ -1,10 +1,11 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useContext, useRef } from 'react';
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
 import { Container, Content, Background } from './styles';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
 import getValidationErrors from '../../utils/getValidationErrors';
+import { AuthContext } from '../../context/AuthContext';
 
 import Input from '../../components/input';
 import Button from '../../components/button';
@@ -12,29 +13,39 @@ import Button from '../../components/button';
 import logoImg from '../../assets/logo.svg';
 import { FormHandles } from '@unform/core';
 
+interface SignInFormData {
+  email: string;
+  password: string;
+}
+
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
-  const handleSubmit = useCallback(async (data: object) => {
-    console.log(data);
+  const { user, signIn } = useContext(AuthContext);
 
-    try {
-      formRef.current?.setErrors({});
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required('Email is required')
-          .email('Email invalid'),
-        password: Yup.string().required('Password is required'),
-      });
+  const handleSubmit = useCallback(
+    async (data: SignInFormData) => {
+      try {
+        formRef.current?.setErrors({});
+        const schema = Yup.object().shape({
+          email: Yup.string()
+            .required('Email is required')
+            .email('Email invalid'),
+          password: Yup.string().required('Password is required'),
+        });
 
-      await schema.validate(data, {
-        abortEarly: false,
-      });
-    } catch (error) {
-      const errors = getValidationErrors(error);
-      formRef.current?.setErrors(errors);
-    }
-  }, []);
+        await schema.validate(data, {
+          abortEarly: false,
+        });
+
+        signIn({ email: data.email, password: data.password });
+      } catch (error) {
+        const errors = getValidationErrors(error);
+        formRef.current?.setErrors(errors);
+      }
+    },
+    [signIn],
+  );
 
   return (
     <Container>
@@ -54,7 +65,7 @@ const SignIn: React.FC = () => {
           <a href="forgot">Forgot Password</a>
         </Form>
 
-        <a href="create">
+        <a href="/SignUp">
           <FiLogIn />
           Sign Up
         </a>
