@@ -1,20 +1,47 @@
-import { SigningOptions } from 'crypto';
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
 import { Container, Content, Background } from './styles';
+import { Form } from '@unform/web';
+import * as Yup from 'yup';
+
+import getValidationErrors from '../../utils/getValidationErrors';
 
 import Input from '../../components/input';
 import Button from '../../components/button';
 
 import logoImg from '../../assets/logo.svg';
+import { FormHandles } from '@unform/core';
 
-const SignIn: React.FC = () => (
-  <>
+const SignIn: React.FC = () => {
+  const formRef = useRef<FormHandles>(null);
+
+  const handleSubmit = useCallback(async (data: object) => {
+    console.log(data);
+
+    try {
+      formRef.current?.setErrors({});
+      const schema = Yup.object().shape({
+        email: Yup.string()
+          .required('Email is required')
+          .email('Email invalid'),
+        password: Yup.string().required('Password is required'),
+      });
+
+      await schema.validate(data, {
+        abortEarly: false,
+      });
+    } catch (error) {
+      const errors = getValidationErrors(error);
+      formRef.current?.setErrors(errors);
+    }
+  }, []);
+
+  return (
     <Container>
       <Content>
         <img src={logoImg} alt="GoBarber" />
 
-        <form action="">
+        <Form ref={formRef} onSubmit={handleSubmit}>
           <h1>Sign In</h1>
           <Input icon={FiMail} name="email" type="email" placeholder="Email" />
           <Input
@@ -25,7 +52,7 @@ const SignIn: React.FC = () => (
           />
           <Button type="submit">Enter</Button>
           <a href="forgot">Forgot Password</a>
-        </form>
+        </Form>
 
         <a href="create">
           <FiLogIn />
@@ -35,7 +62,7 @@ const SignIn: React.FC = () => (
 
       <Background />
     </Container>
-  </>
-);
+  );
+};
 
 export default SignIn;
