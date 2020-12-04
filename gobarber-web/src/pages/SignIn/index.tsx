@@ -1,8 +1,9 @@
 import React, { useCallback, useRef } from 'react';
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
-import { Container, Content, Background } from './styles';
+import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
+import { Container, Content, Background } from './styles';
 
 import getValidationErrors from '../../utils/getValidationErrors';
 import { useAuth } from '../../hooks/auth';
@@ -12,7 +13,6 @@ import Input from '../../components/input';
 import Button from '../../components/button';
 
 import logoImg from '../../assets/logo.svg';
-import { FormHandles } from '@unform/core';
 
 interface SignInFormData {
   email: string;
@@ -47,7 +47,11 @@ const SignIn: React.FC = () => {
           formRef.current?.setErrors(errors);
         }
 
-        addToast();
+        addToast({
+          type: 'error',
+          title: 'Could not authenticate',
+          description: 'Check your credentials',
+        });
       }
     },
     [signIn, addToast],
